@@ -1,0 +1,17 @@
+fastapi
+uvicorn[standard]
+gunicorn
+python-multipart
+langchain
+langchain-community
+langchain-text-splitters
+faiss-cpu
+sentence-transformers
+PyMuPDF
+python-docx
+pandas
+numpy
+openpyxl
+python-dotenv
+requests
+fpdf2
