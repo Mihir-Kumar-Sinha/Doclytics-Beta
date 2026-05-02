@@ -118,52 +118,7 @@ export default function DocumentsTab() {
     return matchesSearch && matchesFilter;
   });
 
-  const StatusBadge = ({ status }) => (
-    <span className={`px-2.5 py-1 rounded-md text-xs font-bold border ${
-      status === 'Ready' 
-        ? isDark ? 'bg-green-900/40 text-green-400 border-green-800' : 'bg-green-100 text-green-700 border-green-200' 
-        : status === 'Processing' 
-          ? isDark ? 'bg-yellow-900/40 text-yellow-400 border-yellow-800' : 'bg-yellow-100 text-yellow-700 border-yellow-200'
-          : isDark ? 'bg-red-900/40 text-red-400 border-red-800' : 'bg-red-100 text-red-700 border-red-200'
-    }`}>
-      {status}
-    </span>
-  );
 
-  const ClassBadge = ({ classification }) => (
-    classification ? (
-      <span className={`px-2.5 py-1 rounded-md text-xs font-bold border ${isDark ? 'bg-purple-900/40 text-purple-400 border-purple-800' : 'bg-purple-100 text-purple-700 border-purple-200'}`}>{classification}</span>
-    ) : (
-      <span className="text-slate-400 text-xs font-bold">Pending</span>
-    )
-  );
-
-  const ActionButtons = ({ doc }) => (
-    <div className="flex items-center space-x-1">
-      {doc.status === 'Ready' && (
-        <>
-          <Link to={`/dashboard/analytics?doc=${doc.id}`} title="View Analysis" className={`p-2 rounded-lg transition ${isDark ? 'text-slate-400 hover:text-teal-400 hover:bg-teal-900/30' : 'text-slate-400 hover:text-teal-600 hover:bg-teal-50'}`}>
-            <BarChart2 className="w-4 h-4" />
-          </Link>
-          <Link to={`/dashboard/chat?doc=${doc.id}`} title="Chat" className={`p-2 rounded-lg transition ${isDark ? 'text-slate-400 hover:text-blue-400 hover:bg-blue-900/30' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'}`}>
-            <MessageSquare className="w-4 h-4" />
-          </Link>
-        </>
-      )}
-      <button 
-        onClick={(e) => { e.stopPropagation(); handleDelete(doc.id, doc.name); }} 
-        disabled={deletingId === doc.id}
-        title="Delete" 
-        className={`p-2 rounded-lg transition ${
-          deletingId === doc.id 
-            ? 'opacity-50 cursor-not-allowed' 
-            : isDark ? 'text-slate-400 hover:text-red-400 hover:bg-red-900/30' : 'text-slate-400 hover:text-red-600 hover:bg-red-50'
-        }`}
-      >
-        {deletingId === doc.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
-      </button>
-    </div>
-  );
 
   return (
     <div className="max-w-6xl mx-auto flex flex-col h-full space-y-6 px-2 sm:px-0">
@@ -279,14 +234,49 @@ export default function DocumentsTab() {
                         </div>
                       </td>
                       <td className="px-6 py-4">
-                        <ClassBadge classification={doc.classification} />
+                        {doc.classification ? (
+                          <span className={`px-2.5 py-1 rounded-md text-xs font-bold border ${isDark ? 'bg-purple-900/40 text-purple-400 border-purple-800' : 'bg-purple-100 text-purple-700 border-purple-200'}`}>{doc.classification}</span>
+                        ) : (
+                          <span className="text-slate-400 text-xs font-bold">Pending</span>
+                        )}
                       </td>
                       <td className={`px-6 py-4 font-medium text-sm ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{new Date(doc.upload_date).toLocaleDateString()}</td>
                       <td className="px-6 py-4">
-                        <StatusBadge status={doc.status} />
+                        <span className={`px-2.5 py-1 rounded-md text-xs font-bold border ${
+                          doc.status === 'Ready' 
+                            ? isDark ? 'bg-green-900/40 text-green-400 border-green-800' : 'bg-green-100 text-green-700 border-green-200' 
+                            : doc.status === 'Processing' 
+                              ? isDark ? 'bg-yellow-900/40 text-yellow-400 border-yellow-800' : 'bg-yellow-100 text-yellow-700 border-yellow-200'
+                              : isDark ? 'bg-red-900/40 text-red-400 border-red-800' : 'bg-red-100 text-red-700 border-red-200'
+                        }`}>
+                          {doc.status}
+                        </span>
                       </td>
                       <td className="px-6 py-4 text-right">
-                        <ActionButtons doc={doc} />
+                        <div className="flex items-center space-x-1 justify-end">
+                          {doc.status === 'Ready' && (
+                            <>
+                              <Link to={`/dashboard/analytics?doc=${doc.id}`} title="View Analysis" className={`p-2 rounded-lg transition ${isDark ? 'text-slate-400 hover:text-teal-400 hover:bg-teal-900/30' : 'text-slate-400 hover:text-teal-600 hover:bg-teal-50'}`}>
+                                <BarChart2 className="w-4 h-4" />
+                              </Link>
+                              <Link to={`/dashboard/chat?doc=${doc.id}`} title="Chat" className={`p-2 rounded-lg transition ${isDark ? 'text-slate-400 hover:text-blue-400 hover:bg-blue-900/30' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'}`}>
+                                <MessageSquare className="w-4 h-4" />
+                              </Link>
+                            </>
+                          )}
+                          <button 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(doc.id, doc.name); }} 
+                            disabled={deletingId === doc.id}
+                            title="Delete" 
+                            className={`p-2 rounded-lg transition ${
+                              deletingId === doc.id 
+                                ? 'opacity-50 cursor-not-allowed' 
+                                : isDark ? 'text-slate-400 hover:text-red-400 hover:bg-red-900/30' : 'text-slate-400 hover:text-red-600 hover:bg-red-50'
+                            }`}
+                          >
+                            {deletingId === doc.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                          </button>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -304,12 +294,47 @@ export default function DocumentsTab() {
                       <FileText className="w-4 h-4 text-blue-600 shrink-0 mt-0.5" />
                       <span className={`text-sm font-bold truncate ${isDark ? 'text-white' : 'text-slate-900'}`}>{doc.name}</span>
                     </div>
-                    <ActionButtons doc={doc} />
+                    <div className="flex items-center space-x-1">
+                      {doc.status === 'Ready' && (
+                        <>
+                          <Link to={`/dashboard/analytics?doc=${doc.id}`} title="View Analysis" className={`p-2 rounded-lg transition ${isDark ? 'text-slate-400 hover:text-teal-400 hover:bg-teal-900/30' : 'text-slate-400 hover:text-teal-600 hover:bg-teal-50'}`}>
+                            <BarChart2 className="w-4 h-4" />
+                          </Link>
+                          <Link to={`/dashboard/chat?doc=${doc.id}`} title="Chat" className={`p-2 rounded-lg transition ${isDark ? 'text-slate-400 hover:text-blue-400 hover:bg-blue-900/30' : 'text-slate-400 hover:text-blue-600 hover:bg-blue-50'}`}>
+                            <MessageSquare className="w-4 h-4" />
+                          </Link>
+                        </>
+                      )}
+                      <button 
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(doc.id, doc.name); }} 
+                        disabled={deletingId === doc.id}
+                        title="Delete" 
+                        className={`p-2 rounded-lg transition ${
+                          deletingId === doc.id 
+                            ? 'opacity-50 cursor-not-allowed' 
+                            : isDark ? 'text-slate-400 hover:text-red-400 hover:bg-red-900/30' : 'text-slate-400 hover:text-red-600 hover:bg-red-50'
+                        }`}
+                      >
+                        {deletingId === doc.id ? <Loader2 className="w-4 h-4 animate-spin" /> : <Trash2 className="w-4 h-4" />}
+                      </button>
+                    </div>
                   </div>
                   {/* Row 2: Meta info */}
                   <div className="flex flex-wrap items-center gap-2 ml-6">
-                    <ClassBadge classification={doc.classification} />
-                    <StatusBadge status={doc.status} />
+                    {doc.classification ? (
+                      <span className={`px-2.5 py-1 rounded-md text-xs font-bold border ${isDark ? 'bg-purple-900/40 text-purple-400 border-purple-800' : 'bg-purple-100 text-purple-700 border-purple-200'}`}>{doc.classification}</span>
+                    ) : (
+                      <span className="text-slate-400 text-xs font-bold">Pending</span>
+                    )}
+                    <span className={`px-2.5 py-1 rounded-md text-xs font-bold border ${
+                      doc.status === 'Ready' 
+                        ? isDark ? 'bg-green-900/40 text-green-400 border-green-800' : 'bg-green-100 text-green-700 border-green-200' 
+                        : doc.status === 'Processing' 
+                          ? isDark ? 'bg-yellow-900/40 text-yellow-400 border-yellow-800' : 'bg-yellow-100 text-yellow-700 border-yellow-200'
+                          : isDark ? 'bg-red-900/40 text-red-400 border-red-800' : 'bg-red-100 text-red-700 border-red-200'
+                    }`}>
+                      {doc.status}
+                    </span>
                     <span className={`text-xs font-medium ${isDark ? 'text-slate-500' : 'text-slate-400'}`}>
                       {new Date(doc.upload_date).toLocaleDateString()}
                     </span>
