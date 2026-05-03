@@ -14,6 +14,7 @@ export default function DocumentsTab() {
   const [isUploading, setIsUploading] = useState(false);
   const [dragActive, setDragActive] = useState(false);
   const [deletingId, setDeletingId] = useState(null);
+  const [confirmDelete, setConfirmDelete] = useState(null); // { id, name } or null
 
   useEffect(() => {
     fetchDocs();
@@ -33,27 +34,34 @@ export default function DocumentsTab() {
     }
   };
 
-  const handleDelete = async (id, docName) => {
-    if (!window.confirm(`Are you sure you want to delete "${docName}"?`)) return;
-    
+  const handleDeleteClick = (id, docName) => {
+    setConfirmDelete({ id, name: docName });
+  };
+
+  const handleDeleteConfirm = async () => {
+    if (!confirmDelete) return;
+    const { id } = confirmDelete;
+    setConfirmDelete(null);
     setDeletingId(id);
     try {
       const res = await fetch(API.deleteDocument(id), { method: 'DELETE' });
       if (res.ok) {
         // Use functional update to avoid stale closure
         setDocuments(prev => prev.filter(d => d.id !== id));
-        if (preferences.emailNotifications) {
-          showToast('🗑️ Document deleted successfully');
-        }
+        showToast('🗑️ Document deleted successfully');
       } else {
-        alert('Server error: Failed to delete document');
+        showToast('❌ Server error: Failed to delete document');
       }
     } catch (e) {
       console.error('Delete failed:', e);
-      alert('Network error: Failed to delete document');
+      showToast('❌ Network error: Failed to delete document');
     } finally {
       setDeletingId(null);
     }
+  };
+
+  const handleDeleteCancel = () => {
+    setConfirmDelete(null);
   };
 
   const handleDrag = (e) => {
@@ -265,7 +273,7 @@ export default function DocumentsTab() {
                             </>
                           )}
                           <button 
-                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(doc.id, doc.name); }} 
+                            onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeleteClick(doc.id, doc.name); }} 
                             disabled={deletingId === doc.id}
                             title="Delete" 
                             className={`p-2 rounded-lg transition ${
@@ -285,7 +293,7 @@ export default function DocumentsTab() {
             </div>
 
             {/* Mobile Card View (hidden on desktop) */}
-            <div className="md:hidden divide-y ${isDark ? 'divide-slate-800' : 'divide-slate-100'}">
+            <div className={`md:hidden divide-y ${isDark ? 'divide-slate-800' : 'divide-slate-100'}`}>
               {filteredDocs.map((doc) => (
                 <div key={doc.id} className={`p-4 transition ${isDark ? 'hover:bg-slate-800' : 'hover:bg-slate-50'}`}>
                   {/* Row 1: Name + Actions */}
@@ -306,7 +314,7 @@ export default function DocumentsTab() {
                         </>
                       )}
                       <button 
-                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDelete(doc.id, doc.name); }} 
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); handleDeleteClick(doc.id, doc.name); }} 
                         disabled={deletingId === doc.id}
                         title="Delete" 
                         className={`p-2 rounded-lg transition ${
@@ -345,6 +353,38 @@ export default function DocumentsTab() {
           </>
         )}
       </div>
+
+      {/* Custom Delete Confirmation Modal */}
+      {confirmDelete && (
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+          <div className="fixed inset-0 bg-black/40 backdrop-blur-sm" onClick={handleDeleteCancel} />
+          <div className={`relative w-full max-w-sm rounded-xl border shadow-2xl p-6 ${isDark ? 'bg-slate-900 border-slate-700' : 'bg-white border-slate-200'}`}>
+            <div className="flex flex-col items-center text-center">
+              <div className={`w-14 h-14 rounded-full flex items-center justify-center mb-4 ${isDark ? 'bg-red-900/30' : 'bg-red-50'}`}>
+                <Trash2 className="w-7 h-7 text-red-500" />
+              </div>
+              <h3 className={`text-lg font-bold mb-2 ${isDark ? 'text-white' : 'text-slate-900'}`}>Delete Document</h3>
+              <p className={`text-sm mb-6 ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>
+                Are you sure you want to delete <span className="font-bold">"{confirmDelete.name}"</span>? This action cannot be undone.
+              </p>
+              <div className="flex items-center space-x-3 w-full">
+                <button 
+                  onClick={handleDeleteCancel}
+                  className={`flex-1 px-4 py-2.5 rounded-lg font-medium text-sm border transition ${isDark ? 'border-slate-700 text-slate-300 hover:bg-slate-800' : 'border-slate-200 text-slate-700 hover:bg-slate-50'}`}
+                >
+                  Cancel
+                </button>
+                <button 
+                  onClick={handleDeleteConfirm}
+                  className="flex-1 px-4 py-2.5 rounded-lg font-medium text-sm bg-red-600 hover:bg-red-700 text-white transition shadow-sm"
+                >
+                  Delete
+                </button>
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

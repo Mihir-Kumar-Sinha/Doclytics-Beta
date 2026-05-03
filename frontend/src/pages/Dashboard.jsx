@@ -17,6 +17,8 @@ export default function Dashboard() {
   const isDark = theme === 'dark';
   const [user, setUser] = useState({ name: 'Guest User', email: 'guest@example.com', initials: 'G' });
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+  const [showUserMenu, setShowUserMenu] = useState(false);
   
   useEffect(() => {
     const saved = localStorage.getItem('doclytics_user');
@@ -29,9 +31,11 @@ export default function Dashboard() {
     }
   }, []);
 
-  // Close mobile menu on route change
+  // Close menus on route change
   useEffect(() => {
     setMobileMenuOpen(false);
+    setShowNotifications(false);
+    setShowUserMenu(false);
   }, [location.pathname]);
 
   const handleLogout = () => {
@@ -164,16 +168,69 @@ export default function Dashboard() {
             <h1 className={`text-lg sm:text-xl font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{currentItem.name}</h1>
           </div>
           <div className="flex items-center space-x-3 sm:space-x-4">
-            <button className={`transition relative ${isDark ? 'text-slate-400 hover:text-blue-400' : 'text-slate-400 hover:text-blue-600'}`}>
-              <Bell className="w-5 h-5" />
-              <span className={`absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border-2 ${isDark ? 'border-slate-900' : 'border-white'}`}></span>
-            </button>
-            <div className="flex items-center space-x-2 cursor-pointer">
-              <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white font-bold text-xs shadow-sm">
-                {user.initials}
-              </div>
-              <span className={`text-sm font-bold hidden sm:block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{user.name}</span>
-              <ChevronDown className={`w-4 h-4 hidden sm:block ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
+            {/* Notifications Bell */}
+            <div className="relative">
+              <button 
+                onClick={() => { setShowNotifications(!showNotifications); setShowUserMenu(false); }}
+                className={`transition relative p-1.5 rounded-lg ${isDark ? 'text-slate-400 hover:text-blue-400 hover:bg-slate-800' : 'text-slate-400 hover:text-blue-600 hover:bg-slate-100'}`}
+              >
+                <Bell className="w-5 h-5" />
+                <span className={`absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full border-2 ${isDark ? 'border-slate-900' : 'border-white'}`}></span>
+              </button>
+              {showNotifications && (
+                <div className={`absolute right-0 mt-2 w-72 rounded-xl border shadow-xl z-50 overflow-hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+                  <div className={`px-4 py-3 border-b font-bold text-sm ${isDark ? 'border-slate-700 text-white' : 'border-slate-100 text-slate-900'}`}>Notifications</div>
+                  <div className="p-4 space-y-3">
+                    <div className={`flex items-start space-x-3 text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                      <div className="w-2 h-2 bg-blue-500 rounded-full mt-1.5 shrink-0"></div>
+                      <div><span className="font-medium">System ready.</span> Upload documents to start generating insights.</div>
+                    </div>
+                    <div className={`flex items-start space-x-3 text-sm ${isDark ? 'text-slate-300' : 'text-slate-600'}`}>
+                      <div className="w-2 h-2 bg-green-500 rounded-full mt-1.5 shrink-0"></div>
+                      <div><span className="font-medium">AI Models loaded.</span> Chat and analytics are operational.</div>
+                    </div>
+                  </div>
+                  <div className={`px-4 py-2 border-t text-center ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+                    <button onClick={() => setShowNotifications(false)} className="text-xs font-medium text-blue-600 hover:text-blue-700 transition">Dismiss All</button>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* User Dropdown */}
+            <div className="relative">
+              <button 
+                onClick={() => { setShowUserMenu(!showUserMenu); setShowNotifications(false); }}
+                className="flex items-center space-x-2 cursor-pointer"
+              >
+                <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-500 to-violet-500 flex items-center justify-center text-white font-bold text-xs shadow-sm">
+                  {user.initials}
+                </div>
+                <span className={`text-sm font-bold hidden sm:block ${isDark ? 'text-slate-300' : 'text-slate-700'}`}>{user.name}</span>
+                <ChevronDown className={`w-4 h-4 hidden sm:block transition-transform ${showUserMenu ? 'rotate-180' : ''} ${isDark ? 'text-slate-500' : 'text-slate-400'}`} />
+              </button>
+              {showUserMenu && (
+                <div className={`absolute right-0 mt-2 w-56 rounded-xl border shadow-xl z-50 overflow-hidden ${isDark ? 'bg-slate-800 border-slate-700' : 'bg-white border-slate-200'}`}>
+                  <div className={`px-4 py-3 border-b ${isDark ? 'border-slate-700' : 'border-slate-100'}`}>
+                    <div className={`text-sm font-bold ${isDark ? 'text-white' : 'text-slate-900'}`}>{user.name}</div>
+                    <div className={`text-xs ${isDark ? 'text-slate-400' : 'text-slate-500'}`}>{user.email}</div>
+                  </div>
+                  <div className="py-1">
+                    <button 
+                      onClick={() => { setShowUserMenu(false); navigate('/dashboard/settings'); }}
+                      className={`w-full text-left px-4 py-2 text-sm font-medium transition ${isDark ? 'text-slate-300 hover:bg-slate-700' : 'text-slate-700 hover:bg-slate-50'}`}
+                    >
+                      ⚙️ Settings
+                    </button>
+                    <button 
+                      onClick={() => { setShowUserMenu(false); handleLogout(); }}
+                      className={`w-full text-left px-4 py-2 text-sm font-medium transition ${isDark ? 'text-red-400 hover:bg-slate-700' : 'text-red-600 hover:bg-red-50'}`}
+                    >
+                      🚪 Log Out
+                    </button>
+                  </div>
+                </div>
+              )}
             </div>
           </div>
         </header>

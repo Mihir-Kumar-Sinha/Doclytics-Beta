@@ -39,6 +39,7 @@ const AnimatedCounter = ({ value }) => {
 export default function Landing() {
   const [stats, setStats] = useState({ documents: 0, insights: 0, visualizations: 0, queries: 0 });
   const [toastMessage, setToastMessage] = useState("");
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   const fetchStats = async () => {
     try {
@@ -95,8 +96,28 @@ export default function Landing() {
           <Link to="/signup" className="bg-blue-600 hover:bg-blue-500 text-white px-5 py-2 rounded-lg font-medium text-sm transition shadow-sm">Get Started</Link>
         </div>
         <div className="md:hidden">
-          <Menu className="w-6 h-6 text-slate-600" />
+          <button onClick={() => setMobileMenuOpen(!mobileMenuOpen)} className="p-1.5 rounded-lg hover:bg-slate-100 transition">
+            <Menu className="w-6 h-6 text-slate-600" />
+          </button>
         </div>
+
+        {/* Mobile Menu Overlay */}
+        {mobileMenuOpen && (
+          <div className="fixed inset-0 z-50 md:hidden">
+            <div className="fixed inset-0 bg-black/30 backdrop-blur-sm" onClick={() => setMobileMenuOpen(false)} />
+            <div className="fixed top-0 right-0 w-64 h-full bg-white shadow-2xl p-6 flex flex-col space-y-6">
+              <div className="flex justify-end">
+                <button onClick={() => setMobileMenuOpen(false)} className="p-1.5 rounded-lg hover:bg-slate-100 transition">
+                  <span className="text-slate-600 text-xl font-bold">✕</span>
+                </button>
+              </div>
+              <a href="#features" onClick={() => setMobileMenuOpen(false)} className="text-slate-700 font-medium text-lg hover:text-blue-600 transition">Features</a>
+              <a href="#how-it-works" onClick={() => setMobileMenuOpen(false)} className="text-slate-700 font-medium text-lg hover:text-blue-600 transition">How it Works</a>
+              <Link to="/login" className="text-slate-700 font-medium text-lg hover:text-blue-600 transition">Log in</Link>
+              <Link to="/signup" className="bg-blue-600 hover:bg-blue-700 text-white px-5 py-2.5 rounded-lg font-medium text-center transition shadow-sm">Get Started</Link>
+            </div>
+          </div>
+        )}
       </nav>
 
       {/* Hero Section */}
