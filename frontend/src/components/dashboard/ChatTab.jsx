@@ -1,6 +1,6 @@
-import React, { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
-import { MessageSquare, Send, Bot, User, FileText, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
+import { MessageSquare, Send, Bot, User, Loader2, ChevronDown, ChevronUp } from 'lucide-react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useTheme } from '../../context/ThemeContext';
 import API from '../../config/api';
@@ -9,7 +9,7 @@ export default function ChatTab({ userName }) {
   const location = useLocation();
   const queryParams = new URLSearchParams(location.search);
   const initialDocId = queryParams.get('doc');
-  const { theme, preferences, showToast } = useTheme();
+  const { theme, preferences } = useTheme();
   const isDark = theme === 'dark';
 
   const [documents, setDocuments] = useState([]);
@@ -21,15 +21,7 @@ export default function ChatTab({ userName }) {
   const [isTyping, setIsTyping] = useState(false);
   const messagesEndRef = useRef(null);
 
-  useEffect(() => {
-    fetchDocs();
-  }, []);
-
-  useEffect(() => {
-    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
-  }, [messages, isTyping]);
-
-  const fetchDocs = async () => {
+  async function fetchDocs() {
     try {
       const res = await fetch(API.documents);
       if (res.ok) {
@@ -38,9 +30,17 @@ export default function ChatTab({ userName }) {
         setDocuments(readyDocs);
       }
     } catch (e) {
-      console.log('Failed to fetch docs');
+      console.log('Failed to fetch docs', e);
     }
-  };
+  }
+
+  useEffect(() => {
+    setTimeout(fetchDocs, 0);
+  }, []);
+
+  useEffect(() => {
+    messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
+  }, [messages, isTyping]);
 
   const handleSend = async (e, textOverride = null) => {
     if (e) e.preventDefault();
@@ -82,6 +82,7 @@ export default function ChatTab({ userName }) {
       }
     } catch (error) {
       setMessages([...newMessages, { role: 'assistant', content: 'Network error. Please try again.', sources: [] }]);
+      console.error(error);
     } finally {
       setIsTyping(false);
     }

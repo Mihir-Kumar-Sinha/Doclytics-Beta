@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Search, Filter, FileText, Trash2, BarChart2, MessageSquare, AlertCircle, UploadCloud, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useTheme } from '../../context/ThemeContext';
@@ -20,7 +20,7 @@ export default function DocumentsTab() {
     fetchDocs();
   }, []);
 
-  const fetchDocs = async () => {
+  async function fetchDocs() {
     try {
       const res = await fetch(API.documents);
       if (res.ok) {
@@ -28,7 +28,7 @@ export default function DocumentsTab() {
         setDocuments(data);
       }
     } catch (e) {
-      console.log('Failed to fetch docs');
+      console.log('Failed to fetch docs', e);
     } finally {
       setLoading(false);
     }
@@ -113,6 +113,7 @@ export default function DocumentsTab() {
       }, 2000);
     } catch (e) {
       alert("Upload failed");
+      console.error(e);
     } finally {
       setIsUploading(false);
     }

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { FileText, Brain, BarChart2, MessageSquare, Zap, Shield } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 import API from '../../config/api';
@@ -8,13 +8,7 @@ export default function HomeTab() {
   const isDark = theme === 'dark';
   const [stats, setStats] = useState({ documents: 0, insights: 0, visualizations: 0, queries: 0 });
 
-  useEffect(() => {
-    fetchStats();
-    const interval = setInterval(fetchStats, 5000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const fetchStats = async () => {
+  async function fetchStats() {
     try {
       const res = await fetch(API.stats);
       if (res.ok) {
@@ -22,9 +16,15 @@ export default function HomeTab() {
         setStats(data);
       }
     } catch (e) {
-      console.log('Failed to fetch stats');
+      console.log('Failed to fetch stats', e);
     }
-  };
+  }
+
+  useEffect(() => {
+    setTimeout(fetchStats, 0);
+    const interval = setInterval(fetchStats, 5000);
+    return () => clearInterval(interval);
+  }, []);
 
   const statCards = [
     { label: "Documents Analyzed", value: stats.documents, icon: <FileText className="w-5 h-5 text-blue-600" />, lightColor: "bg-blue-50 border-blue-100", darkColor: "bg-blue-950/30 border-blue-900/50" },

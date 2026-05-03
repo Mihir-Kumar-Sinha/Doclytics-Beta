@@ -1,10 +1,10 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Routes, Route, Link, useLocation, useNavigate } from 'react-router-dom';
-import { Home, Upload as UploadIcon, FileText, BarChart2, MessageSquare, Settings, Bell, ChevronDown, LogOut, Menu, X } from 'lucide-react';
+import { Home, FileText, BarChart2, MessageSquare, Settings, Bell, ChevronDown, LogOut, Menu, X } from 'lucide-react';
 import { useTheme } from '../context/ThemeContext';
 
 import HomeTab from '../components/dashboard/HomeTab';
-import UploadTab from '../components/dashboard/UploadTab';
+
 import DocumentsTab from '../components/dashboard/DocumentsTab';
 import AnalyticsTab from '../components/dashboard/AnalyticsTab';
 import ChatTab from '../components/dashboard/ChatTab';
@@ -26,16 +26,20 @@ export default function Dashboard() {
       try {
         const parsed = JSON.parse(saved);
         const init = parsed.name.split(' ').map(n => n[0]).join('').substring(0, 2).toUpperCase() || 'U';
-        setUser({ name: parsed.name, email: parsed.email, initials: init });
-      } catch(e){}
+        setTimeout(() => setUser({ name: parsed.name, email: parsed.email, initials: init }), 0);
+      } catch(e) {
+        console.error(e);
+      }
     }
   }, []);
 
   // Close menus on route change
   useEffect(() => {
-    setMobileMenuOpen(false);
-    setShowNotifications(false);
-    setShowUserMenu(false);
+    setTimeout(() => {
+      setMobileMenuOpen(false);
+      setShowNotifications(false);
+      setShowUserMenu(false);
+    }, 0);
   }, [location.pathname]);
 
   const handleLogout = () => {

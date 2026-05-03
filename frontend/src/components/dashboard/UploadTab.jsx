@@ -1,4 +1,4 @@
-import React, { useState, useRef } from 'react';
+import { useState, useRef } from 'react';
 import { Upload as UploadIcon, FileText, X, CheckCircle, AlertCircle, Loader2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { motion } from 'framer-motion';
@@ -62,6 +62,7 @@ export default function UploadTab() {
         setUploadState('error');
       }
     } catch (e) {
+      console.error(e);
       setUploadState('error');
     }
   };
@@ -88,6 +89,7 @@ export default function UploadTab() {
           }
         }
       } catch (e) {
+        console.error(e);
         // ignore network errors while polling
       }
     }, 2000);

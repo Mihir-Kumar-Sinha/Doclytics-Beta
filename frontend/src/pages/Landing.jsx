@@ -1,7 +1,7 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { FileText, Brain, PieChart, MessageSquare, Upload, Activity, Download, Shield, Zap, BarChart2, Play, ArrowRight, Menu } from 'lucide-react';
-import { motion, useAnimation } from 'framer-motion';
+import { motion } from 'framer-motion';
 import API from '../config/api';
 
 // Animated Counter component
@@ -31,6 +31,7 @@ const AnimatedCounter = ({ value }) => {
     if (startValue !== endValue) {
       window.requestAnimationFrame(step);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [value]);
 
   return <span>{displayValue.toLocaleString()}</span>;
@@ -49,12 +50,12 @@ export default function Landing() {
         setStats(data);
       }
     } catch (e) {
-      console.log('Stats fetch failed');
+      console.error('Stats fetch failed', e);
     }
   };
 
   useEffect(() => {
-    fetchStats();
+    setTimeout(fetchStats, 0);
     const interval = setInterval(fetchStats, 5000);
     return () => clearInterval(interval);
   }, []);
@@ -66,7 +67,7 @@ export default function Landing() {
       setToastMessage(`Action '${action}' successful — stats updated!`);
       setTimeout(() => setToastMessage(""), 3000);
     } catch (e) {
-      console.log('Simulation failed', e);
+      console.error('Simulation failed', e);
     }
   };
 

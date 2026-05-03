@@ -1,5 +1,5 @@
-import React, { useState, useEffect } from 'react';
-import { Settings, Save, Palette, Bell, Shield, User, Moon, Sun, Monitor, CheckCircle } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import { Settings, Save, Palette, Bell, User, Moon, Sun, CheckCircle } from 'lucide-react';
 import { useTheme } from '../../context/ThemeContext';
 
 export default function SettingsTab({ user }) {
@@ -12,13 +12,13 @@ export default function SettingsTab({ user }) {
 
   // Keep localPrefs in sync when preferences change externally
   useEffect(() => {
-    setLocalPrefs(preferences);
+    setTimeout(() => setLocalPrefs(preferences), 0);
   }, [preferences]);
 
   // Track unsaved changes
   useEffect(() => {
     const changed = JSON.stringify(localPrefs) !== JSON.stringify(preferences);
-    setHasChanges(changed);
+    setTimeout(() => setHasChanges(changed), 0);
   }, [localPrefs, preferences]);
 
   const handleSave = () => {

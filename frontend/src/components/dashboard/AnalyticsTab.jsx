@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useLocation } from 'react-router-dom';
 import { BarChart2, TrendingUp, TrendingDown, LayoutGrid, FileText, Download, Brain } from 'lucide-react';
 import {
@@ -25,19 +25,7 @@ export default function AnalyticsTab() {
   const [selectedChart, setSelectedChart] = useState('All');
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    fetchDocs();
-  }, []);
-
-  useEffect(() => {
-    if (selectedDocId) {
-      fetchDocData(selectedDocId);
-    } else {
-      setDocData(null);
-    }
-  }, [selectedDocId]);
-
-  const fetchDocs = async () => {
+  async function fetchDocs() {
     try {
       const res = await fetch(API.documents);
       if (res.ok) {
@@ -49,13 +37,13 @@ export default function AnalyticsTab() {
         }
       }
     } catch (e) {
-      console.log('Failed to fetch docs');
+      console.log('Failed to fetch docs', e);
     } finally {
       setLoading(false);
     }
-  };
+  }
 
-  const fetchDocData = async (id) => {
+  async function fetchDocData(id) {
     try {
       const res = await fetch(API.document(id));
       if (res.ok) {
@@ -63,9 +51,23 @@ export default function AnalyticsTab() {
         setDocData(data);
       }
     } catch (e) {
-      console.log('Failed to fetch doc data');
+      console.log('Failed to fetch doc data', e);
     }
-  };
+  }
+
+  useEffect(() => {
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    setTimeout(fetchDocs, 0);
+  }, []);
+
+  useEffect(() => {
+    if (selectedDocId) {
+      setTimeout(() => fetchDocData(selectedDocId), 0);
+    } else {
+      setTimeout(() => setDocData(null), 0);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [selectedDocId]);
 
   const handleExport = async () => {
     if (!selectedDocId) return;
@@ -86,6 +88,7 @@ export default function AnalyticsTab() {
       }
     } catch (e) {
       alert("Export failed");
+      console.error(e);
     }
   };
 
@@ -289,9 +292,9 @@ function AnalyticsChat({ docId, isDark }) {
   ]);
   const [input, setInput] = useState('');
   const [isTyping, setIsTyping] = useState(false);
-  const messagesEndRef = React.useRef(null);
+  const messagesEndRef = useRef(null);
 
-  React.useEffect(() => {
+  useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages, isTyping]);
 
@@ -319,6 +322,7 @@ function AnalyticsChat({ docId, isDark }) {
       }
     } catch (error) {
       setMessages([...newMessages, { role: 'assistant', content: 'Network error. Please try again.' }]);
+      console.error(error);
     } finally {
       setIsTyping(false);
     }

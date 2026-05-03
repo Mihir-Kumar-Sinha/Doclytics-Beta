@@ -1,4 +1,4 @@
-import React, { createContext, useContext, useState, useEffect } from 'react';
+import { createContext, useContext, useState, useEffect } from 'react';
 
 const ThemeContext = createContext();
 
@@ -17,9 +17,13 @@ export function ThemeProvider({ children }) {
     if (saved) {
       try {
         const parsed = JSON.parse(saved);
-        setPreferences(parsed);
-        setTheme(parsed.theme || 'light');
-      } catch (e) {}
+        setTimeout(() => {
+          setPreferences(parsed);
+          setTheme(parsed.theme || 'light');
+        }, 0);
+      } catch (e) {
+        console.error(e);
+      }
     }
   }, []);
 
@@ -63,6 +67,7 @@ export function ThemeProvider({ children }) {
   );
 }
 
+// eslint-disable-next-line react-refresh/only-export-components
 export function useTheme() {
   const context = useContext(ThemeContext);
   if (!context) throw new Error('useTheme must be used within ThemeProvider');
