@@ -29,3 +29,25 @@ In today's fast-paced environment, businesses and individuals generate massive a
 This codebase is optimized for a split-stack cloud deployment:
 - **Frontend:** Pre-configured for **Vercel** with SPA routing (`vercel.json`).
 - **Backend:** Pre-configured for **Render** with an included `render.yaml` blueprint and `Procfile`.
+
+## 🏗️ Architecture
+```mermaid
+graph TD;
+    User[User/Browser] -->|React Frontend| UI[Doclytics Dashboard];
+    UI -->|Upload Document| API[FastAPI Backend];
+    UI -->|Query/Chat| API;
+    API -->|Parse| PyMuPDF[Document Parser];
+    PyMuPDF -->|Chunks| FAISS[Vector Database];
+    API -->|RAG| LangChain[LangChain Pipeline];
+    LangChain <--> FAISS;
+    LangChain <--> OpenRouter[OpenRouter / LLMs];
+```
+
+## 💻 Local Setup
+1. Clone the repository
+2. Navigate to the `backend` folder, install requirements (`pip install -r requirements.txt`), and run `uvicorn main:app --reload`
+3. Navigate to the `frontend` folder, run `npm install`, and start the app with `npm run dev`
+4. Access the dashboard at `http://localhost:5173`
+
+## 📄 License
+This project is open-source and available under the MIT License.
